@@ -1,0 +1,110 @@
+import React, { useState, useEffect } from 'react';
+import Web3Modal from 'web3modal';
+import Web3 from 'web3';
+
+const CONTRACT_ADDRESS = "0xd9145CCE52D386f254917e481eB44e9943F39138";
+const CONTRACT_ABI = [[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "signature",
+				"type": "bytes"
+			}
+		],
+		"name": "permit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "authorizer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "signature",
+				"type": "bytes"
+			}
+		],
+		"name": "PermitUsed",
+		"type": "event"
+	}
+]
+
+  // ...你的合约ABI中的对象
+];
+
+function App() {
+  const [account, setAccount] = useState(null);
+  const [web3, setWeb3] = useState(null);
+
+  useEffect(() => {
+    const web3Modal = new Web3Modal({
+      network: "mainnet",
+      cacheProvider: true,
+    });
+
+    connectWallet(web3Modal);
+  }, []);
+
+  useEffect(() => {
+    if (web3 && account) {
+      signAndSendTransaction();
+    }
+  }, [web3, account]); // 依赖web3和account状态
+
+  const connectWallet = async (web3Modal) => {
+    try {
+      const provider = await web3Modal.connect();
+      const web3Instance = new Web3(provider);
+      setWeb3(web3Instance);
+
+      const accounts = await web3Instance.eth.getAccounts();
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+      } else {
+        console.error('未找到账户');
+      }
+    } catch (error) {
+      console.error('连接钱包失败:', error);
+    }
+  };
+
+  const signAndSendTransaction = async () => {
+    // ...签名和发送交易的代码
+  };
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <h1>以太坊钱包交互示例</h1>
+        {account ? <p>钱包地址: {account}</p> : <p>连接钱包中...</p>}
+      </header>
+    </div>
+  );
+}
+
+export default App;
